@@ -1,4 +1,4 @@
-enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN}; // Here we make nicknames for the different states our program supports.
+enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN, HALFSINE, OFF2}; // Here we make nicknames for the different states our program supports.
 enum ledStates ledState; // We define 'ledState' as type ledStates'
 enum ledStates previousLedState = ledState;
 
@@ -8,7 +8,7 @@ unsigned long currentMillis;
 int brightness = 0; // our main variable for setting the brightness of the LED
 float velocity = 1.0; // the speed at which we change the brightness.
 int ledPin = 9; // we use pin 9 for PWM
-
+int sineCounter = 0;
 void setup() {
   // put your setup code here, to run once:
   pinMode(ledPin, OUTPUT); // set ledPin as an output.
@@ -32,29 +32,32 @@ void compose() {
   switch (ledState){
 
   case START:
-    brightness = 130;
+    //brightness = 130;
     Serial.println("Start ////////////////////////////////////");
     
     ledState = INCREASE;
 
   break;
-
+  
   case INCREASE:
-    brightness = increase_brightness(brightness, 18);
-
+    //brightness = increase_brightness(brightness, 18);
+    brightness = expInc_brightness(brightness, 20);    
+    
     plot("INCREASING", brightness);
         
     if (brightness > 250){
       //ledState = WAVE;
-      changeState(DECREASE);
+      changeState(OFF);
       }
-    break;
+   break;
    
   case DECREASE:
-    brightness = decrease_brightness(brightness, 20);
+    //brightness = decrease_brightness(brightness, 20);
+    brightness = expDec_brightness(brightness, 40);
+    
     plot("DECREASING", brightness);
-      if (brightness <= 0){
-      changeState(INCREASEAGAIN);
+      if (brightness <= 2){
+      changeState(OFF2);
       }
      break;
 
@@ -72,12 +75,12 @@ void compose() {
     
   case WAVE:
     plot("WAVE", brightness);
-    
+    brightness = 180;
     brightness = sinewave(1000,256,0); // you can tweak the parameters of the sinewave
     analogWrite(ledPin, brightness);
     
     if (currentMillis - startMillis >= 5000){ //change state after 5 secs by comparing the time elapsed since we last change state
-      changeState(DECREASE);
+      changeState(START);
       }
     break;
     
@@ -93,11 +96,19 @@ void compose() {
 
   case OFF:
     plot("OFF", brightness);
-    brightness = 130;
-    if (currentMillis - startMillis >= 500){
-      changeState(START);
+    brightness = 255;
+    if (currentMillis - startMillis >= 1000){
+      changeState(DECREASE);
       }
     break;
+    
+  case OFF2:
+  plot("OFF", brightness);
+  brightness = 2;
+  if (currentMillis - startMillis >= 100){
+    changeState(START);
+    }
+  break;
   }
 }
 
@@ -120,11 +131,48 @@ int increase_brightness (int brightness, float velocity){
     return brightness = brightness + 1 * velocity;
   }
 
-int decrease_brightness (int brightness, float velocity){
-    return brightness = brightness - 1 * velocity;
+int expInc_brightness (int brightness, float velocity){
+  int output = brightness + brightness/velocity + 1;
+  
+  if (output >= 255) {
+    return 255;
+  } else {
+    return output;
   }
+}
+
+
+int decrease_brightness (int brightness, float velocity){
+  int output = brightness = brightness - 1 * velocity;
+  
+  if (brightness > 0) {
+    return output;
+  } else {
+    return 0;
+  }
+}
+
+int expDec_brightness (int brightness, float velocity){
+  int output = brightness = brightness - brightness/velocity - 1;
+  
+  if (brightness > 0) {
+    return output;
+  } else {
+    return 0;
+  }
+}
 
 int sinewave(float duration, float amplitude, int offset){
+    // Generate a sine oscillation, return a number.
+    // In case you are using this for analogWrite, make sure the amplitude does not exceed 256
+    float period = millis()/duration; // Duration in ms determines the wavelength.
+    float midpoint = amplitude / 2; // set the midpoint of the wave at half the amplitude so there are no negative numbers
+    int value = midpoint + midpoint * sin ( period * 2.0 * PI );
+    value = value + offset; //offset allows you to move the wave up and down on the Y-axis. Should not exceed the value of amplitude to prevent clipping.
+    return value;
+  }
+
+int halSine(float duration, float amplitude, int offset){
     // Generate a sine oscillation, return a number.
     // In case you are using this for analogWrite, make sure the amplitude does not exceed 256
     float period = millis()/duration; // Duration in ms determines the wavelength.
