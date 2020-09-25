@@ -34,16 +34,30 @@ pinMode(A0, INPUT);
 void loop() {
   
   int sensorValue = analogRead(A0);
-  sensorValue = sensorValue/1023*100;
-  sensorValue = round(sensorValue);
+  sensorValue = map(sensorValue, 0, 1023, 0, 100);
+  // sensorValue = round(sensorValue);
 
-  Serial.print("Sensor value: ");
-  Serial.println(sensorValue);
+  // Serial.print("Sensor value: ");
+  // Serial.println(sensorValue);
   
-/*
-  if (sensorValue > 1023) {
-    globalState == 1;
-}
+  // if (sensorValue > 1023) {
+  //  globalState == 1;
+  //  }
+
+if (sensorValue > 96) {
+    globalState = 1;
+} else if (sensorValue > 65) {
+    globalState = 2;
+    // Serial.println("This is state 2"); 
+} else if (sensorValue > 50) {
+    globalState = 3;
+} else if (sensorValue > 25) {
+    globalState = 4;
+} else {
+    globalState = 10;
+    Serial.println("Nothing is happening");
+  }
+
 
   // put your main code here, to run repeatedly:
    if (globalState == 0) {        // 75
@@ -79,7 +93,7 @@ void loop() {
    } else if (globalState == 2) {        // 75
     //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
     maxLength = 100;
-    chargeState = 130;    //255 is 100 percent
+    chargeState = 160;    //255 is 100 percent
     holdChargeState = 1200;    //255 is 100 percent
     pauseTime = 1000;    //255 is 100 percent
     
@@ -112,8 +126,12 @@ void loop() {
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
     
-  } else if (globalState == 5) {            // 75
+  } else if (globalState == 10) {            // 75
     globalState = 0;
+    maxLength = 0;
+    chargeState = 0;    //255 is 100 percent
+    holdChargeState = 0;    //255 is 100 percent
+    pauseTime = 0;    //255 is 100 percent
     //Serial.println("Start over ////////////////////////////// Start over ////////");
     
   }
@@ -121,8 +139,8 @@ void loop() {
   //delay(10);
   //analogWrite(ledPin, brightness);
   //currentMillis = millis(); //store the current time since the program started
+
 }
-*/
 
 void compose() {
   // this is a state machine which allows us to decouple the various operations from timed loops. 
@@ -283,7 +301,7 @@ int sinewave(float duration, float amplitude, int offset){
     return value;
   }
 
-int halSine(float duration, float amplitude, int offset){
+int halSine(float duration, float amplitude, int offset) {
     // Generate a sine oscillation, return a number.
     // In case you are using this for analogWrite, make sure the amplitude does not exceed 256
     float period = millis()/duration; // Duration in ms determines the wavelength.
