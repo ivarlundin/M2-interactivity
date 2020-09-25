@@ -1,4 +1,5 @@
 //Chargestate 01 - Sketch #6
+#include <math.h>
 
 enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN, HALFSINE, OFF2, FADEOUT}; // Here we make nicknames for the different states our program supports.
 enum ledStates ledState; // We define 'ledState' as type ledStates'
@@ -29,18 +30,21 @@ pinMode(A0, INPUT);
 }
 
 //Debug loop
+
 void loop() {
+  
   int sensorValue = analogRead(A0);
+  sensorValue = sensorValue/1023*100;
+  sensorValue = round(sensorValue);
 
   Serial.print("Sensor value: ");
   Serial.println(sensorValue);
-
-  delay(1000);
-
+  
+/*
+  if (sensorValue > 1023) {
+    globalState == 1;
 }
 
-/*
-void loop() {
   // put your main code here, to run repeatedly:
    if (globalState == 0) {        // 75
     //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
@@ -195,7 +199,7 @@ void compose() {
     brightness = 0;
     if (currentMillis - startMillis >= pauseTime){
       changeState(START);
-      globalState++;
+      // globalState++;
       }
     break;
     
