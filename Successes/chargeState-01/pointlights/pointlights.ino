@@ -25,21 +25,9 @@ void setup() {
   pinMode(ledPin, OUTPUT); // set ledPin as an output.
   Serial.begin(9600); // initiate the Serial monitor so we can use the Serial Plotter to graph our patterns
 
-pinMode(A0, INPUT);
+  pinMode(A0, INPUT);
 }
 
-//Debug loop
-void loop() {
-  int sensorValue = analogRead(A0);
-
-  Serial.print("Sensor value: ");
-  Serial.println(sensorValue);
-
-  delay(1000);
-
-}
-
-/*
 void loop() {
   // put your main code here, to run repeatedly:
    if (globalState == 0) {        // 75
@@ -118,8 +106,6 @@ void loop() {
   //analogWrite(ledPin, brightness);
   //currentMillis = millis(); //store the current time since the program started
 }
-*/
-
 void compose() {
   // this is a state machine which allows us to decouple the various operations from timed loops. 
   // instead we just switch from state to state when particular conditions are met.
