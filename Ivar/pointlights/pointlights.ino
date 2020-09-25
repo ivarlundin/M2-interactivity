@@ -1,4 +1,5 @@
 //Chargestate 01 + touchsensor
+#include <math.h>
 
 enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN, HALFSINE, OFF2, FADEOUT}; // Here we make nicknames for the different states our program supports.
 enum ledStates ledState; // We define 'ledState' as type ledStates'
@@ -27,18 +28,20 @@ void setup() {
 
   pinMode(A0, INPUT);
 }
-//Debug loop
+
 void loop() {
+
   int sensorValue = analogRead(A0);
-  sensorValue = 
+  sensorValue = sensorValue * 10;
   
   Serial.print("Sensor value: ");
   Serial.println(sensorValue);
-  
-  delay(500);
-}
 /*
-void loop() {
+  if (sensorValue > 9000) {
+    globalState == 1;
+  }
+
+*/
   // put your main code here, to run repeatedly:
    if (globalState == 0) {        // 75
     //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
@@ -116,7 +119,7 @@ void loop() {
   //analogWrite(ledPin, brightness);
   //currentMillis = millis(); //store the current time since the program started
 }
-*/
+
 void compose() {
   // this is a state machine which allows us to decouple the various operations from timed loops. 
   // instead we just switch from state to state when particular conditions are met.
@@ -192,7 +195,7 @@ void compose() {
     brightness = 0;
     if (currentMillis - startMillis >= pauseTime){
       changeState(START);
-      globalState++;
+      //globalState++;
       }
     break;
     
