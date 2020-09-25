@@ -1,4 +1,6 @@
-enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN, HALFSINE, OFF2}; // Here we make nicknames for the different states our program supports.
+//Chargestate 01 + touchsensor
+
+enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN, HALFSINE, OFF2, FADEOUT}; // Here we make nicknames for the different states our program supports.
 enum ledStates ledState; // We define 'ledState' as type ledStates'
 enum ledStates previousLedState = ledState;
 
@@ -9,21 +11,112 @@ int brightness = 0; // our main variable for setting the brightness of the LED
 float velocity = 1.0; // the speed at which we change the brightness.
 int ledPin = 9; // we use pin 9 for PWM
 int sineCounter = 0;
+
+//CONTROL PATTERN
+int maxLength;
+int chargeState;    //255 is 100 percent
+int holdChargeState;    //255 is 100 percent
+int pauseTime;    //255 is 100 percent
+
+int globalState = 0;
+
 void setup() {
   // put your setup code here, to run once:
   pinMode(ledPin, OUTPUT); // set ledPin as an output.
   Serial.begin(9600); // initiate the Serial monitor so we can use the Serial Plotter to graph our patterns
 
+  pinMode(A0, INPUT);
 }
-
+//Debug loop
+void loop() {
+  int sensorValue = analogRead(A0);
+  sensorValue = 
+  
+  Serial.print("Sensor value: ");
+  Serial.println(sensorValue);
+  
+  delay(500);
+}
+/*
 void loop() {
   // put your main code here, to run repeatedly:
-  compose();
-  delay(10);
-  analogWrite(ledPin, brightness);
-  currentMillis = millis(); //store the current time since the program started
-}
+   if (globalState == 0) {        // 75
+    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+    maxLength = 50;
+    chargeState = 0;    //255 is 100 percent
+    holdChargeState = 0;    //255 is 100 percent
+    pauseTime = 0;    //255 is 100 percent
+    
+    compose();
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis(); //store the current time since the program started
 
+   } else if (globalState == 1) {        // 75
+    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+    maxLength = 100;
+    chargeState = 255;    //255 is 100 percent
+    holdChargeState = 1000;    //255 is 100 percent
+    pauseTime = 1000;    //255 is 100 percent
+    
+    compose();
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis(); //store the current time since the program started
+
+
+
+
+
+
+
+   } else if (globalState == 2) {        // 75
+    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+    maxLength = 100;
+    chargeState = 130;    //255 is 100 percent
+    holdChargeState = 1200;    //255 is 100 percent
+    pauseTime = 1000;    //255 is 100 percent
+    
+    compose();
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis(); //store the current time since the program started
+    
+  } else if (globalState == 3) {        // 50
+    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+    maxLength = 100;
+    chargeState = 60;    //255 is 100 percent
+    holdChargeState = 800;    //255 is 100 percent
+    pauseTime = 1000;    //255 is 100 percent
+    
+    compose();
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis(); //store the current time since the program started
+    
+  } else if (globalState == 4) {  //25
+    //Serial.println("25 percent ////////////////////////////// 25 percent ////////");
+    maxLength = 100;
+    chargeState = 15;    //255 is 100 percent
+    holdChargeState = 400;    //255 is 100 percent
+    pauseTime = 1000;    //255 is 100 percent
+    
+    compose();
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis(); //store the current time since the program started
+    
+  } else if (globalState == 5) {            // 75
+    globalState = 0;
+    //Serial.println("Start over ////////////////////////////// Start over ////////");
+    
+  }
+  //compose();
+  //delay(10);
+  //analogWrite(ledPin, brightness);
+  //currentMillis = millis(); //store the current time since the program started
+}
+*/
 void compose() {
   // this is a state machine which allows us to decouple the various operations from timed loops. 
   // instead we just switch from state to state when particular conditions are met.
@@ -32,12 +125,12 @@ void compose() {
   switch (ledState){
 
   case START:
-    //brightness = 130;
-    Serial.println("Start ////////////////////////////////////");
-    
-    ledState = INCREASE;
-
-  break;
+    plot("START", brightness);
+    brightness = 255;
+    if (currentMillis - startMillis >= maxLength){
+      changeState(DECREASE);
+      }
+    break;
   
   case INCREASE:
     //brightness = increase_brightness(brightness, 18);
@@ -53,10 +146,10 @@ void compose() {
    
   case DECREASE:
     //brightness = decrease_brightness(brightness, 20);
-    brightness = expDec_brightness(brightness, 40);
+    brightness = expDec_brightness(brightness, maxLength/10);
     
     plot("DECREASING", brightness);
-      if (brightness <= 2){
+      if (brightness <= chargeState){
       changeState(OFF2);
       }
      break;
@@ -96,19 +189,30 @@ void compose() {
 
   case OFF:
     plot("OFF", brightness);
-    brightness = 255;
-    if (currentMillis - startMillis >= 1000){
-      changeState(DECREASE);
+    brightness = 0;
+    if (currentMillis - startMillis >= pauseTime){
+      changeState(START);
+      globalState++;
       }
     break;
     
   case OFF2:
   plot("OFF", brightness);
-  brightness = 2;
-  if (currentMillis - startMillis >= 100){
-    changeState(START);
+  brightness = chargeState;
+  if (currentMillis - startMillis >= holdChargeState){
+    changeState(FADEOUT);
     }
   break;
+
+  case FADEOUT:
+  //brightness = decrease_brightness(brightness, 20);
+    brightness = expDec_brightness(brightness, maxLength/5);;
+    
+    plot("DECREASING", brightness);
+      if (brightness <= 0){
+      changeState(OFF);
+      }
+     break;
   }
 }
 
