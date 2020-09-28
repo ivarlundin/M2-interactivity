@@ -139,12 +139,6 @@ if (sensorValue > 96) {
   //delay(10);
   //analogWrite(ledPin, brightness);
   //currentMillis = millis(); //store the current time since the program started
-<<<<<<< HEAD
-  */
-=======
-
->>>>>>> 11f397cca3872a0dbb09b171ff3ac3d3e6434e3e
-}
 
 void compose() {
   // this is a state machine which allows us to decouple the various operations from timed loops. 
