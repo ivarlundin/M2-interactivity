@@ -1,5 +1,4 @@
-//Chargestate 01 + touchsensor
-#include <math.h>
+//Version 2 - Adding behaviour
 
 enum ledStates {START, INCREASE, DECREASE, STAY, WAVE, OFF, ON, INCREASEAGAIN, HALFSINE, OFF2, FADEOUT}; // Here we make nicknames for the different states our program supports.
 enum ledStates ledState; // We define 'ledState' as type ledStates'
@@ -8,17 +7,18 @@ enum ledStates previousLedState = ledState;
 unsigned long startMillis;  //some global variables available anywhere in the program
 unsigned long currentMillis;
 
+//Global variables
 int brightness = 0; // our main variable for setting the brightness of the LED
 float velocity = 1.0; // the speed at which we change the brightness.
 int ledPin = 9; // we use pin 9 for PWM
-int sineCounter = 0;
 
-//CONTROL PATTERN
+//Variables for controlling patterns
 int maxLength;
 int chargeState;    //255 is 100 percent
 int holdChargeState;    //255 is 100 percent
 int pauseTime;    //255 is 100 percent
 
+//State
 int globalState = 0;
 
 void setup() {
@@ -26,139 +26,118 @@ void setup() {
   pinMode(ledPin, OUTPUT); // set ledPin as an output.
   Serial.begin(9600); // initiate the Serial monitor so we can use the Serial Plotter to graph our patterns
 
+  //Sensor
   pinMode(A0, INPUT);
 }
 
 void loop() {
-
+  //Read sensor value
   int sensorValue = analogRead(A0);
   sensorValue = sensorValue * 10;
   sensorValue = map(sensorValue, 0, 9500, 0, 100);
-  if (sensorValue > 100) {
+
+  if (sensorValue > 100) {    //Set max value
     sensorValue = 100;
-  }
+  }   
   
-  //Conditions
-  if (sensorValue > 99) {     //100
-    //Serial.println("State: 100");
+  //Map sensor value to conditions and state  
+  if (sensorValue > 80) {     //100
     globalState = 1;
+
   } else if (sensorValue > 55) {    //75
-    //Serial.println("State: 75");
     globalState = 2;
+
   } else if (sensorValue > 45) {    //50
-    //Serial.println("State: 50");
     globalState = 3;
+
   } else if (sensorValue > 20) {    //25
-    //Serial.println("State: 25");
     globalState = 4;
+
   } else {            //0
     globalState = 10;
-    //Serial.println("Nothing is happening");
+    
   }
 
-  
-/*
-  if (sensorValue > 9000) {
-    globalState == 1;
-  }
-
-*/
-
-  // put your main code here, to run repeatedly:
-   if (globalState == 0) {        // 75
-    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+  //States
+   if (globalState == 0) {        // 75 percent
+    //Define variables
     maxLength = 50;
     chargeState = 0;    //255 is 100 percent
     holdChargeState = 0;    //255 is 100 percent
     pauseTime = 0;    //255 is 100 percent
     
-    compose();
+    compose2();      //Composing function
+
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
 
    } else if (globalState == 1) {        // 100
-    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+   //Define variables
     maxLength = 100;
     chargeState = 255;    //255 is 100 percent
     holdChargeState = 1000;    //255 is 100 percent
     pauseTime = 1000;    //255 is 100 percent
     
-    compose();
+    compose2();      //Composing function
+
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
 
-
-
-
-
-
-
    } else if (globalState == 2) {        // 75
-    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+    //Define variables
     maxLength = 100;
     chargeState = 130;    //255 is 100 percent
     holdChargeState = 1200;    //255 is 100 percent
     pauseTime = 1000;    //255 is 100 percent
     
-    compose();
+    compose();    //Composing function
+
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
     
   } else if (globalState == 3) {        // 50
-    //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
+    //Define variables
     maxLength = 100;
     chargeState = 60;    //255 is 100 percent
     holdChargeState = 800;    //255 is 100 percent
     pauseTime = 1000;    //255 is 100 percent
     
-    compose();
+    compose();   //Composing function
+
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
     
   } else if (globalState == 4) {  //25
-    //Serial.println("25 percent ////////////////////////////// 25 percent ////////");
+    //Define variables
     maxLength = 100;
     chargeState = 15;    //255 is 100 percent
     holdChargeState = 400;    //255 is 100 percent
     pauseTime = 1000;    //255 is 100 percent
     
-    compose();
+    compose();   //Composing function
+
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
     
   } else if (globalState == 5) {            // 75
     globalState = 0;
-    //Serial.println("Start over ////////////////////////////// Start over ////////");
+  
     
   } else if (globalState == 10) {            // 75
     globalState = 0;
-    //Serial.println("Start over ////////////////////////////// Start over ////////");
-    //maxLength = 0;
-    //chargeState = 0;    //255 is 100 percent
-    //holdChargeState = 0;    //255 is 100 percent
-    //pauseTime = 100;    //255 is 100 percent
-    
-    //compose();
+  
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis();
   }
-  //compose();
-  //delay(10);
-  //analogWrite(ledPin, brightness);
-  //currentMillis = millis(); //store the current time since the program started
 }
 
 void compose() {
-  // this is a state machine which allows us to decouple the various operations from timed loops. 
-  // instead we just switch from state to state when particular conditions are met.
-  // we switch states by calling the changeState() function.
-  
   switch (ledState){
 
   case START:
@@ -253,6 +232,35 @@ void compose() {
   }
 }
 
+void compose2() {
+  switch (ledState){
+
+  case INCREASE:
+    brightness = increase_brightness(brightness, 5);
+    //brightness = expInc_brightness(brightness, 20);    
+    
+    plot("INCREASING", brightness);
+        
+    if (brightness > 250){
+      //ledState = WAVE;
+      changeState(DECREASE);
+      }
+   break;
+   
+  case DECREASE:
+    brightness = decrease_brightness(brightness, 20);
+    //brightness = expDec_brightness(brightness, maxLength/10);
+    
+    plot("DECREASING", brightness);
+      if (brightness <= 0){
+      changeState(INCREASE);
+      }
+     break;
+  }
+}
+
+//Helper functions
+
 void changeState(ledStates newState){
     // call to change state, will keep track of time since last state
     startMillis = millis();
@@ -281,7 +289,6 @@ int expInc_brightness (int brightness, float velocity){
     return output;
   }
 }
-
 
 int decrease_brightness (int brightness, float velocity){
   int output = brightness = brightness - 1 * velocity;
