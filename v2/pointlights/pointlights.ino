@@ -31,30 +31,31 @@ void setup() {
 }
 
 void loop() {
-  
- int sensorValue = analogRead(A0);
-  sensorValue = map(sensorValue, 0, 1023, 0, 100);
-  // sensorValue = round(sensorValue);
+  //Read sensor value
+  int sensorValue = analogRead(A0);
+  sensorValue = sensorValue * 10;
+  sensorValue = map(sensorValue, 0, 9500, 0, 100);
 
-  // Serial.print("Sensor value: ");
-  // Serial.println(sensorValue);
+  if (sensorValue > 100) {    //Set max value
+    sensorValue = 100;
+  }   
   
-  // if (sensorValue > 1023) {
-  //  globalState == 1;
-  //  }
-
-if (sensorValue > 96) {
+  //Map sensor value to conditions and state  
+  if (sensorValue > 80) {     //100
     globalState = 1;
-} else if (sensorValue > 65) {
+
+  } else if (sensorValue > 55) {    //75
     globalState = 2;
-    // Serial.println("This is state 2"); 
-} else if (sensorValue > 50) {
+
+  } else if (sensorValue > 45) {    //50
     globalState = 3;
-} else if (sensorValue > 25) {
+
+  } else if (sensorValue > 20) {    //25
     globalState = 4;
-} else {
+
+  } else {            //0
     globalState = 10;
-    Serial.println("Nothing is happening");
+    
   }
 
   //States
@@ -119,6 +120,21 @@ if (sensorValue > 96) {
     
     compose();   //Composing function
 
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis(); //store the current time since the program started
+    
+  } else if (globalState == 5) {            // 75
+    globalState = 0;
+  
+    
+  } else if (globalState == 10) {            // 75
+    globalState = 0;
+  
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis();
+  }
 }
 
 void compose() {
