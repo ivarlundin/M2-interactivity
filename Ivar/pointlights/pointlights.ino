@@ -33,15 +33,39 @@ void loop() {
 
   int sensorValue = analogRead(A0);
   sensorValue = sensorValue * 10;
+  sensorValue = map(sensorValue, 0, 9500, 0, 100);
+  if (sensorValue > 100) {
+    sensorValue = 100;
+  }
+  //Debug
+  //Serial.print("Sensor value: ");
+  //Serial.println(sensorValue);
+
+  if (sensorValue > 99) {     //100
+    //Serial.println("State: 100");
+    globalState = 1;
+  } else if (sensorValue > 55) {    //75
+    //Serial.println("State: 75");
+    globalState = 2;
+  } else if (sensorValue > 45) {    //50
+    //Serial.println("State: 50");
+    globalState = 3;
+  } else if (sensorValue > 20) {    //25
+    //Serial.println("State: 25");
+    globalState = 4;
+  } else {            //0
+    globalState = 10;
+    //Serial.println("Nothing is happening");
+  }
+
   
-  Serial.print("Sensor value: ");
-  Serial.println(sensorValue);
 /*
   if (sensorValue > 9000) {
     globalState == 1;
   }
 
 */
+
   // put your main code here, to run repeatedly:
    if (globalState == 0) {        // 75
     //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
@@ -55,7 +79,7 @@ void loop() {
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
 
-   } else if (globalState == 1) {        // 75
+   } else if (globalState == 1) {        // 100
     //Serial.println("50 percent ////////////////////////////// 50 percent ////////");
     maxLength = 100;
     chargeState = 255;    //255 is 100 percent
@@ -113,6 +137,18 @@ void loop() {
     globalState = 0;
     //Serial.println("Start over ////////////////////////////// Start over ////////");
     
+  } else if (globalState == 10) {            // 75
+    globalState = 0;
+    //Serial.println("Start over ////////////////////////////// Start over ////////");
+    //maxLength = 0;
+    //chargeState = 0;    //255 is 100 percent
+    //holdChargeState = 0;    //255 is 100 percent
+    //pauseTime = 100;    //255 is 100 percent
+    
+    //compose();
+    delay(10);
+    analogWrite(ledPin, brightness);
+    currentMillis = millis();
   }
   //compose();
   //delay(10);

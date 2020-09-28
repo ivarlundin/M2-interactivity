@@ -121,8 +121,8 @@ void loop() {
   //delay(10);
   //analogWrite(ledPin, brightness);
   //currentMillis = millis(); //store the current time since the program started
+  */
 }
-*/
 
 void compose() {
   // this is a state machine which allows us to decouple the various operations from timed loops. 
