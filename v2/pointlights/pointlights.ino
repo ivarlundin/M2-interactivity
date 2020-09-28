@@ -37,10 +37,8 @@ void loop() {
   if (sensorValue > 100) {
     sensorValue = 100;
   }
-  //Debug
-  //Serial.print("Sensor value: ");
-  //Serial.println(sensorValue);
-
+  
+  //Conditions
   if (sensorValue > 99) {     //100
     //Serial.println("State: 100");
     globalState = 1;
