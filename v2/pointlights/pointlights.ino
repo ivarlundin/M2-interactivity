@@ -17,6 +17,7 @@ int maxLength;
 int chargeState;    //255 is 100 percent
 int holdChargeState;    //255 is 100 percent
 int pauseTime;    //255 is 100 percent
+int storeState;
 
 //State
 int globalState = 0;
@@ -33,52 +34,37 @@ void setup() {
 void loop() {
   //Read sensor value
   int sensorValue = analogRead(A0);
-  sensorValue = map(sensorValue, 0, 1023, 0, 100);
-
+  sensorValue = sensorValue * 10;
+  sensorValue = map(sensorValue, 0, 9500, 0, 100);
+  
   if (sensorValue > 100) {    //Set max value
     sensorValue = 100;
   }   
+  //Serial.print("Sensor : ");
+  //Serial.println(sensorValue);
+  
+  //brightness = map(sensorValue, 0, 100, 0, 255);
   
   //Map sensor value to conditions and state  
   if (sensorValue > 80) {     //100
     globalState = 1;
+    //Serial.println("above 80");
 
-  } else if (sensorValue > 55) {    //75
+  } else if (sensorValue > 50) {    //75
     globalState = 2;
+    //Serial.println("above 50");
 
-  } else if (sensorValue > 45) {    //50
+  } else if (sensorValue > 20) {            //0
     globalState = 3;
-
-  } else if (sensorValue > 20) {    //25
+    //Serial.println("else");
+  } else {
     globalState = 4;
-
-  } else {            //0
-    globalState = 10;
-    
   }
 
   //States
-   if (globalState == 0) {        // 75 percent
-    //Define variables
-    maxLength = 50;
-    chargeState = 0;    //255 is 100 percent
-    holdChargeState = 0;    //255 is 100 percent
-    pauseTime = 0;    //255 is 100 percent
-    
-    compose2();      //Composing function
-
-    delay(10);
-    analogWrite(ledPin, brightness);
-    currentMillis = millis(); //store the current time since the program started
-
-   } else if (globalState == 1) {        // 100
+  if (globalState == 1) {        // 100
    //Define variables
-    maxLength = 100;
-    chargeState = 255;    //255 is 100 percent
-    holdChargeState = 1000;    //255 is 100 percent
-    pauseTime = 1000;    //255 is 100 percent
-    
-    compose2();      //Composing function
+    increaseDecrease();      //Composing function
 
     delay(10);
     analogWrite(ledPin, brightness);
@@ -91,48 +77,25 @@ void loop() {
     holdChargeState = 1200;    //255 is 100 percent
     pauseTime = 1000;    //255 is 100 percent
     
-    compose();    //Composing function
+    changeState(WAVE);
+    waveThem();    //Composing function
 
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
     
   } else if (globalState == 3) {        // 50
-    //Define variables
-    maxLength = 100;
-    chargeState = 60;    //255 is 100 percent
-    holdChargeState = 800;    //255 is 100 percent
-    pauseTime = 1000;    //255 is 100 percent
-    
-    compose();   //Composing function
-
+    waveSlow();
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
-    
-  } else if (globalState == 4) {  //25
-    //Define variables
-    maxLength = 100;
-    chargeState = 15;    //255 is 100 percent
-    holdChargeState = 400;    //255 is 100 percent
-    pauseTime = 1000;    //255 is 100 percent
-    
-    compose();   //Composing function
 
+  } else if (globalState == 4) {
+    constantWave();
     delay(10);
     analogWrite(ledPin, brightness);
     currentMillis = millis(); //store the current time since the program started
-    
-  } else if (globalState == 5) {            // 75
-    globalState = 0;
-  
-    
-  } else if (globalState == 10) {            // 75
-    globalState = 0;
-  
-    delay(10);
-    analogWrite(ledPin, brightness);
-    currentMillis = millis();
+
   }
 }
 
@@ -231,23 +194,57 @@ void compose() {
   }
 }
 
-void compose2() {
+void waveThem() {
+  plot("WAVE", brightness);
+  brightness = 180;
+  brightness = sinewave(1000,256,0); // you can tweak the parameters of the sinewave
+  analogWrite(ledPin, brightness);
+  
+  if (currentMillis - startMillis >= 5000){ //change state after 5 secs by comparing the time elapsed since we last change state
+    changeState(START);
+    }
+}
+void waveSlow() {
+  plot("WAVE", brightness);
+  brightness = 180;
+  brightness = sinewave(2000,256,0); // you can tweak the parameters of the sinewave
+  analogWrite(ledPin, brightness);
+  
+  if (currentMillis - startMillis >= 5000){ //change state after 5 secs by comparing the time elapsed since we last change state
+    changeState(START);
+    }
+}
+
+void constantWave() {
+  plot("WAVE", brightness);
+  brightness = 180;
+  brightness = sinewave(3000,80,0); // you can tweak the parameters of the sinewave
+  analogWrite(ledPin, brightness);
+  
+  if (currentMillis - startMillis >= 5000){ //change state after 5 secs by comparing the time elapsed since we last change state
+    changeState(START);
+    }
+}
+void increaseDecrease() {
+  if (ledState == 0) {
+    changeState(INCREASE);
+  }
   switch (ledState){
 
   case INCREASE:
-    brightness = increase_brightness(brightness, 5);
-    //brightness = expInc_brightness(brightness, 20);    
+    brightness = increase_brightness(brightness, 40);
+    //brightness = expInc_brightness(brightness, 20);
     
     plot("INCREASING", brightness);
         
-    if (brightness > 250){
+    if (brightness >= 250){
       //ledState = WAVE;
       changeState(DECREASE);
       }
    break;
    
   case DECREASE:
-    brightness = decrease_brightness(brightness, 20);
+    brightness = decrease_brightness(brightness, 70);
     //brightness = expDec_brightness(brightness, maxLength/10);
     
     plot("DECREASING", brightness);
