@@ -95,7 +95,7 @@ void loop() {
     //brightness = map(sensorValue, 0, 100, 0, 255);
     
     //Map sensor value to conditions and state  
-    if (sensorValue > 95) {     //100
+    if (sensorValue > 80) {     //100
       globalState = 1;
       //Serial.println("above 80");
   
