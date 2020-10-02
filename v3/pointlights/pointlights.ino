@@ -67,8 +67,8 @@ void setup() {
 
 void loop() {
   int readPiezo = analogRead(A0);
-  readPiezo = map(readPiezo, 0, 1023, 0, 20);
-  readPiezo = map(readPiezo, 0, 20, 0, 255);
+  readPiezo = map(readPiezo, 0, 1023, 0, 1023);
+  //readPiezo = map(readPiezo, 0, 0, 0, 255);
   //Serial.println("Piezo = ");
   Serial.println(readPiezo);
   //Serial.println(" %");
@@ -385,10 +385,10 @@ void changeState(ledStates newState){
 void plot(char *state, int brightness){
     // use this function to plot a graph.
     // it will normalize the auto-scaling plotter 
-    Serial.print(state);
-    Serial.print(", ");
-    Serial.print(brightness);
-    Serial.println(", 0, 300");
+    //Serial.print(state);
+    //Serial.print(", ");
+    //Serial.print(brightness);
+    //Serial.println(", 0, 300");
   }
 
 int increase_brightness (int brightness, float velocity){
@@ -428,7 +428,7 @@ int expDec_brightness (int brightness, float velocity){
 int sinewave(float duration, float amplitude, int offset){
     // Generate a sine oscillation, return a number.
     // In case you are using this for analogWrite, make sure the amplitude does not exceed 256
-    float period = millis()/duration; // Duration in ms determines the wavelength.
+    float period = millis()/duration; // Duration iapn ms determines the wavelength.
     float midpoint = amplitude / 2; // set the midpoint of the wave at half the amplitude so there are no negative numbers
     int value = midpoint + midpoint * sin ( period * 2.0 * PI );
     
