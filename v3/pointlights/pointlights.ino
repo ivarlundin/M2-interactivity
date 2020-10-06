@@ -45,7 +45,7 @@ int requiredHlrCount = 10;
 int sensitivity = 0;
 
 int lives = 2;
-int maxPain = 20;
+int maxPain = 10;
 
 void setup() {
   // put your setup code here, to run once:
@@ -109,11 +109,11 @@ void loop() {
     //Read sensor value
     int sensorValue = analogRead(A0);
     sensorValue = sensorValue * 10;
-    sensorValue = map(sensorValue, 0, 9500, 0, 100); //is this correct? Not 1023?
+    sensorValue = map(sensorValue, 0, 1023, 0, 100); //is this correct? Not 1023?
     
-    if (sensorValue > 100) {    //Set max value
-      sensorValue = 100;
-    }   
+//    if (sensorValue > 500) {    //Set max value
+//      sensorValue = 100;
+//    }   
     sensorValue == readPiezo;
     //Serial.print("Sensor : ");
     //Serial.println(sensorValue);
@@ -121,15 +121,15 @@ void loop() {
     //brightness = map(sensorValue, 0, 100, 0, 255);
     
     //Map sensor value to conditions and state  
-    if (sensorValue > 80) {     //100
+    if (sensorValue > 450) {     //100
       globalState = 1;
       //Serial.println("above 80");
   
-    } else if (sensorValue > 50 - sensitivity) {    //75
+    } else if (sensorValue > 350 - sensitivity) {    //75
       globalState = 2;
       //Serial.println("above 50");
   
-    } else if (sensorValue > 5 - sensitivity) {            //0
+    } else if (sensorValue > 20 - sensitivity) {            //0
       globalState = 3;
       //Serial.println("else");
     } else {
