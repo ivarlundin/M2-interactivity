@@ -109,7 +109,7 @@ void loop() {
     //Read sensor value
     int sensorValue = analogRead(A0);
     sensorValue = sensorValue * 10;
-    sensorValue = map(sensorValue, 0, 1023, 0, 100); //is this correct? Not 1023?
+    sensorValue = map(sensorValue, 0, 1023, 0, 100);
     
 //    if (sensorValue > 500) {    //Set max value
 //      sensorValue = 100;
