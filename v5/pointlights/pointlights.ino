@@ -1,4 +1,4 @@
-//Version 5.1 - Adding behaviour
+//Version 5.2 - Adding behaviour
 
 //For neopixels...
 #include <Adafruit_NeoPixel.h>
@@ -55,7 +55,7 @@ int requiredHlrCount = 10;
 int sensitivity = 0;
 
 int lives = 2;
-int maxPain = 20;
+int maxPain = 100;
 
 void setup() {
   // put your setup code here, to run once:
@@ -99,7 +99,7 @@ void loop() {
      Serial.print("required... ");
      Serial.println(ambientLight);
      
-    if (readLight < ambientLight + 5 && lifeCounter < lives) {
+    if (readLight < ambientLight + 10 && lifeCounter < lives) {
       Serial.println("Put down again");
       
       //reset those badboys
@@ -144,6 +144,7 @@ void loop() {
     if (globalState == 1) {        // 100
      //Define variables
        if (painCounter > maxPain) {
+        lifeCounter++;
         die(); 
        } else {
         increaseDecrease();      //Composing function
